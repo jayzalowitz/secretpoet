@@ -1,5 +1,5 @@
 # Use an official Python runtime based on Debian 10 "buster" as a parent image.
-FROM python:3.8.1-slim-buster
+FROM python:3.11.0-slim-buster
 
 # Add user that will be used in the container.
 RUN useradd wagtail
@@ -25,13 +25,13 @@ RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-r
  && rm -rf /var/lib/apt/lists/*
 
 # Install the application server.
-RUN pip install "gunicorn==20.0.4"
-
-RUN pip install --upgrade pip setuptools
+RUN pip3 install "gunicorn==20.0.4"
+RUN pip3 install --upgrade pip
+RUN pip3 install --upgrade pip setuptools
 
 # Install the project requirements.
 COPY requirements.txt /
-RUN pip install -r /requirements.txt
+RUN pip3 install -r /requirements.txt
 
 # Use /app folder as a directory where the source code is stored.
 WORKDIR /app

@@ -2,8 +2,7 @@ from django.db import models
 from wagtail.models import Page  # Updated import
 from wagtail.admin.panels import FieldPanel
 from django.conf import settings
-from mobilecoin.client import ClientAsync
-import asyncio
+
 
 class BlogIndexPage(Page):
     def get_context(self, request, *args, **kwargs):
@@ -11,34 +10,7 @@ class BlogIndexPage(Page):
         context['posts'] = BlogPost.objects.live().order_by('-first_published_at')
         return context
 
-class ClientSync:
-    """
-    Convenience class to make it easier to use the client from synchronous
-    code. Any time we call a method of this client, it constructs an inner
-    asynchronous client, and calls the underlying async method.
-    """
-    def __init__(self, url=None):
-        self.url = url
-
-
-    def __getattr__(self, name):
-        def inner(*args, **kwargs):
-            result = None
-            async def runner():
-                async with ClientAsync(url="http://full_service:9090/wallet/v2") as c:
-                    nonlocal result
-                    method = getattr(c, name)
-                    result = await method(*args, **kwargs)
-            asyncio.run(runner())
-            return result
-        return inner
-
 class BlogPost(Page):
-    client = ClientSync()
-    def check_for_account():
-        import ipdb; ipdb.set_trace()
-        account = client.create_account()
-        address = client.assign_address_for_account(account.account)
     body = models.TextField()
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,

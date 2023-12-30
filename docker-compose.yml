@@ -8,6 +8,8 @@ services:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
+    networks:
+      - app_network
 
   web:
     build: .
@@ -18,18 +20,37 @@ services:
       - "8000:8000"
     depends_on:
       - db
+      - full_service
     environment:
       DATABASE_URL: postgres://${DB_USER}:${DB_PASS}@db:5432/${DB_NAME}
     env_file:
       - .env
+    networks:
+      - app_network
+
+
 
   full_service:
-    image: mobilecoin/full-service:v2.9.2-testnet
+    image: mobilecoin/full-service:v2.9.2-mainnet
+    expose: 
+      - "9090"
     ports:
       - "9090:9090"
     volumes:
       - full_service_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "localhost:9090/wallet/v2"]  # replace with appropriate health check command
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - app_network
 
 volumes:
   postgres_data:
   full_service_data:
+
+networks:
+  app_network:
+    driver: bridge

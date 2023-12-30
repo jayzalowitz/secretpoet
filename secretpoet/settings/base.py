@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "payments",
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
+    "wagtail.contrib.modeladmin",
     "wagtail.embeds",
     "wagtail.sites",
     "wagtail.users",
@@ -66,6 +67,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
+            os.path.join(BASE_DIR, 'templates'),
             os.path.join(PROJECT_DIR, "templates"),
         ],
         "APP_DIRS": True,
