@@ -18,7 +18,7 @@ class BlogPost(Page):
         null=True
     )
     payment_required = models.BooleanField(default=True)
-    unlock_fee = models.DecimalField(max_digits=10, decimal_places=2)
+    unlock_fee = models.DecimalField(max_digits=13, decimal_places=10)
     coin_choice = (
         ('mobilecoin','mobilecoin'),
         ('eusd', 'eusd (inactive)'),
@@ -35,7 +35,7 @@ class BlogPost(Page):
     def is_unlocked_for_user(self, request):
         unlock_key = request.GET.get('unlock_key', '')
         if not unlock_key:
-        	return false
+        	return False
         else:
         	mobilecoin.get_key()
 	        # Implement a secure method to validate the unlock_key

@@ -27,7 +27,7 @@ class UserAccount(models.Model):
         FieldPanel('account_name', widget=forms.TextInput(attrs={'readonly': 'readonly'})),
         FieldPanel('account_main_address', widget=forms.TextInput(attrs={'readonly': 'readonly'})),
         FieldPanel('last_mobilecoin_balance_observed', widget=forms.NumberInput(attrs={'readonly': 'readonly'})),
-        FieldPanel('recovery_mnemonic', widget=forms.NumberInput(attrs={'readonly': 'readonly'})),
+        FieldPanel('recovery_mnemonic', widget=forms.TextInput(attrs={'readonly': 'readonly'})),
         # Add other fields and panels as needed
     ]
     '''

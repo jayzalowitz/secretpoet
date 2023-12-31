@@ -1,12 +1,15 @@
 # secretpoet/payment/admin.py
-
+'''
 from django.contrib import admin
 from blog.models import BlogPost
 from .models import UserAccount
 
 # @admin.register(UserAccount)
 class UserAccountAdmin(admin.ModelAdmin):
-    list_display = ('user', 'account_key_id', 'next_block_to_sync')
+    list_display = ('account_key_id',
+        'account_name',
+        'account_main_address',
+        'recovery_mnemonic')
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -31,4 +34,4 @@ class UserAccountAdmin(admin.ModelAdmin):
 admin.site.register(UserAccount, 
     UserAccountAdmin)
 admin.site.register(BlogPost)
-
+'''

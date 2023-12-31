@@ -3,6 +3,10 @@ from wagtail.contrib.modeladmin.options import ModelAdmin, modeladmin_register
 from .models import UserAccount
 from django.contrib.auth import get_user_model
 
+import logging
+import json
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 User = get_user_model()
 
 class UserAccountAdmin(ModelAdmin):
@@ -13,11 +17,12 @@ class UserAccountAdmin(ModelAdmin):
     exclude_from_explorer = False # Whether to exclude from the explorer navigation menu
     list_display = ('user',   
         'next_block_to_sync')
+    '''
     readonly_fields = ('account_key_id',
         'account_name',
         'account_main_address',
         'recovery_mnemonic')
-    
+    '''
     # Custom permissions for view, edit, and delete
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -37,11 +42,13 @@ class UserAccountAdmin(ModelAdmin):
 
     '''
     def get_readonly_fields(self, request, obj=None):
+        logging.error("running readonly: recovery_mnemonic")
+            
         readonly_fields = super().get_readonly_fields(request, obj)
-        # Make certain fields read-only for non-superusers viewing their own account
-        if not request.user.is_superuser and obj is not None and obj.user == request.user:
-            return readonly_fields + ('account_keys',)  # Add more fields as needed
-        return readonly_fields
+        # Make 'recovery_mnemonic' read-only for the user who owns the account or for superusers
+        if obj is not None and (request.user.is_superuser or request.user == obj.user):
+            readonly_fields + ('recovery_mnemonic',)
+        return readonly_fields + ('recovery_mnemonic',)
 
 # Register your modeladmin class with Wagtail
 modeladmin_register(UserAccountAdmin)

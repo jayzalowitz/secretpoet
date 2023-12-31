@@ -1,13 +1,99 @@
 {% extends "base.html" %}
 
+{% block extra_css %}
+    <style>
+        .blog-post {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .blog-post h1 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .blog-post p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .blog-post img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .blog-post-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+        }
+
+        .unlock-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .unlock-button:hover {
+            background-color: #0056b3;
+        }
+
+        .social-share {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .social-share a {
+            margin: 0 10px;
+            color: #333;
+            text-decoration: none;
+            font-size: 24px;
+        }
+
+        .comments-section {
+            margin-top: 40px;
+        }
+
+        .comments-section h3 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
+<article class="blog-post">
   <h1>{{ page.title }}</h1>
-  <p>{{ page.body }}</p>
 
   {% if is_unlocked_for_user %}
-    <div>Content of the blog post</div>
+    <div><p>{{ page.body|linebreaksbr }}</p></div>
+    <div><h2>To visit this page in the future you will need to save this link which contains your payment address {{ request.build_absolute_uri }}</h4></div>
+  {% elif payment_required %}
+    <div><p>{{ page.body|linebreaksbr  }}</p></div>
   {% else %}
-    <p>This post requires a payment of ${{ page.unlock_fee }} to unlock.</p>
+    {% if not unlock_key %}
+    <p>This post requires a payment of {{ page.unlock_fee }} {{ page.coin_option }}
+     to unlock.</p>
     <a href="{% url 'unlock_blog_post' page.id %}">Unlock Post</a>
+
+    {% elif unlock_key %}
+      <p>This post requires a payment of {{ page.unlock_fee }} {{ page.coin_option }}
+       to unlock.
+      </p>
+      <h3>Please send this fee to this {{ page.coin_option }} public address: <h4>{{ unlock_key}}</h4></h3>
+    {% endif %}
   {% endif %}
+
+
+  </article>
 {% endblock %}
