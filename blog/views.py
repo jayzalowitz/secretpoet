@@ -3,10 +3,32 @@ from .models import BlogPost
 from wagtail.models import Page
 from secretpoet.payments.utils import Payment 
 from asgiref.sync import sync_to_async
-
+from django.core.paginator import Paginator
+from django.http import Http404
 import logging
 import json
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+async def blog_index_view(request):
+    # Get all blog posts, you might want to order them as well
+    blog_posts = await sync_to_async(list)(BlogPost.objects.all().order_by('-last_published_at'))
+
+    # Implement pagination
+    paginator = Paginator(blog_posts, 10)  # Show 10 posts per page
+    page_number = request.GET.get('page')
+    page_obj = await sync_to_async(paginator.get_page)(page_number)
+
+    # If page does not exist, show 404 error
+    if not page_obj:
+        raise Http404("Page not found")
+
+    # Pass the page object to the template
+    context = {
+        'page_obj': page_obj,
+    }
+
+    # Render the blog index page
+    return await sync_to_async(render)(request, 'blog/blog_index_page.html', context)
 
 
 async def blog_post_view(request, post_id=None, post_slug=None):

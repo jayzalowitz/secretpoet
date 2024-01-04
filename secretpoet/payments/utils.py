@@ -4,6 +4,7 @@ from mobilecoin.client import ClientAsync
 from payments.models import UserAccount
 import logging
 import json
+import os
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 class ClientSync:
@@ -13,7 +14,7 @@ class ClientSync:
 
     async def _init_client(self):
         if not self.client:
-            self.client = ClientAsync(url=self.url or "http://full_service:9090/wallet/v2")
+            self.client = ClientAsync(url=self.url or os.getenv('FULL_SERVICE_URL', "http://full_service:9090/wallet/v2"))
 
     async def _run_async(self, method_name, *args, **kwargs):
         await self._init_client()
@@ -38,6 +39,7 @@ class Payment:
         self.client = ClientAsync(url=self.url or "http://full_service:9090/wallet/v2")
 
     async def is_unlocked_for_user(self, unlock_key,post):
+        mob_info = False
         if not unlock_key:
             return False
         else:
