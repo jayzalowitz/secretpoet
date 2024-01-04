@@ -10,6 +10,7 @@ from search import views as search_views
 from blog import views as blog_views
 
 urlpatterns = [
+    path('healthcheck/', blog_views.health_check, name='health_check'),
     path("django-admin/", admin.site.urls),
     path("admin/", include(wagtailadmin_urls)),
     path("documents/", include(wagtaildocs_urls)),

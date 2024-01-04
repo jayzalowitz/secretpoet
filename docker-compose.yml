@@ -13,7 +13,7 @@ services:
 
   web:
     build: .
-    command: sh remote-up.sh # python manage.py runserver 0.0.0.0:8000
+    # command: sh remote-up.sh # python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
     ports:
