@@ -13,16 +13,23 @@ services:
 
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: sh remote-up.sh # python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
     ports:
       - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "localhost:8000/healthcheck/"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     depends_on:
       - db
       - full_service
     environment:
       DATABASE_URL: postgres://${DB_USER}:${DB_PASS}@db:5432/${DB_NAME}
+      FULL_SERVICE_URL: http://full_service:9090/wallet/v2
     env_file:
       - .env
     networks:
