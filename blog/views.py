@@ -7,7 +7,55 @@ from django.core.paginator import Paginator
 from django.http import Http404
 import logging
 import json
+
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+def health_check(request):
+    import os
+    from django.http import JsonResponse
+    from django.db import connections, OperationalError
+    from django.contrib.auth import get_user_model
+    # Environment variable checks
+    username = os.environ.get('DJANGO_SUPERUSER_USERNAME')
+    email = os.environ.get('DJANGO_SUPERUSER_EMAIL')
+    password = os.environ.get('DJANGO_SUPERUSER_PASSWORD')
+
+    if not all([username, email, password]):
+        return JsonResponse({"environment": "missing variables"}, status=503)
+
+    # Function to check and create superuser
+    def check_and_create_superuser():
+        User = get_user_model()
+        user_exists = User.objects.filter(username=username).exists() or \
+                      User.objects.filter(email=email).exists()
+
+        if user_exists:
+            return "existing user"
+        else:
+            # Create superuser
+            User.objects.create_superuser(username=username, email=email, password=password)
+            return "superuser created"
+
+    # Database connectivity check
+    def check_database_connection():
+        db_conn = connections['default']
+        try:
+            db_conn.cursor()
+        except OperationalError:
+            return False
+        return True
+
+    user_status = check_and_create_superuser()
+    db_connected = check_database_connection()
+
+    if not db_connected:
+        return JsonResponse({"database": "unavailable"}, status=503)
+
+    return JsonResponse({
+        "status": "healthy",
+        "user_check": user_status,
+        "environment": "variables present"
+    }, status=200)
 
 async def blog_index_view(request):
     # Get all blog posts, you might want to order them as well
