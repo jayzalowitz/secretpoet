@@ -197,8 +197,8 @@ resource "aws_ecs_task_definition" "full_service" {
   family                   = "full-service"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "256"
-  memory                   = "512"
+  cpu                      = "512"
+  memory                   = "1024"
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
   volume {
     name = "full-service-data"
@@ -259,6 +259,16 @@ resource "aws_lb_target_group" "tg" {
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
   target_type = "ip"
+  health_check {
+    enabled             = true
+    interval            = 60
+    path                = "/wallet/v2"
+    protocol            = "HTTP"
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+    timeout             = 5
+    matcher             = "200"
+  }
 }
 
 # ALB Listener
@@ -277,6 +287,19 @@ resource "aws_security_group" "alb_sg" {
   name        = "alb-sg"
   description = "Security group for internal ALB"
   vpc_id      = aws_vpc.main.id
+  ingress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = [aws_vpc.main.cidr_block]  # Restrict to VPC CIDR
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = [aws_vpc.main.cidr_block]  # Restrict to VPC CIDR
+  }
 }
 
 # Security Group for ECS Tasks
@@ -284,6 +307,13 @@ resource "aws_security_group" "ecs_tasks_sg" {
   name        = "ecs-tasks-sg"
   description = "Security group for ECS tasks"
   vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port = 9090
+    to_port = 9090
+    protocol = "tcp"
+    security_groups = [aws_security_group.alb_sg.id]
+  }
 
   egress {
     from_port   = 0
