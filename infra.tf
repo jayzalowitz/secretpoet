@@ -202,8 +202,8 @@ resource "aws_ecs_task_definition" "full_service" {
   family                   = "full-service"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "512"
-  memory                   = "1024"
+  cpu                      = "1024"
+  memory                   = "2048"
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
   volume {
     name = "full-service-data"
@@ -234,7 +234,7 @@ resource "aws_ecs_task_definition" "full_service" {
       command     = ["CMD-SHELL", "curl -f http://localhost:9090/wallet/v2 || exit 1"],
       interval    = 30,
       timeout     = 10,
-      retries     = 3,
+      retries     = 10,
       startPeriod = 10
     },
     logConfiguration = {
@@ -361,7 +361,7 @@ resource "aws_ecs_task_definition" "web" {
 
   container_definitions = jsonencode([{
     name  = "web",
-    image = "jayzalowitz/secretpoet",  # Replace with your Docker image
+    image = "jayzalowitz/secretpoet.1.1",  # Replace with your Docker image
     # command = ["/app/remote-up.sh"],  # Specify the path to your script
     portMappings = [{
       containerPort = 8000,
@@ -369,7 +369,7 @@ resource "aws_ecs_task_definition" "web" {
     }],
     environment = [
       { name = "DATABASE_URL", value = "postgres://${var.DB_USER}:${var.DB_PASS}@${aws_db_instance.db.endpoint}/${var.DB_NAME}" },
-      { name = "FULL_SERVICE_URL", value = "http://${aws_lb.app_lb.dns_name}:9090/wallet/v2" },
+      { name = "FULL_SERVICE_URL", value = "http://${aws_lb.app_lb.dns_name}:80/wallet/v2" },
       { name = "DJANGO_SUPERUSER_USERNAME", value = var.DJANGO_SUPERUSER_USERNAME },
       { name = "DJANGO_SUPERUSER_EMAIL", value = var.DJANGO_SUPERUSER_EMAIL },
       { name = "DJANGO_SUPERUSER_PASSWORD", value = var.DJANGO_SUPERUSER_PASSWORD }

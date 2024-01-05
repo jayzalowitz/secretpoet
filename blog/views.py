@@ -1,3 +1,5 @@
+# /blog/views.py
+
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import BlogPost
 from wagtail.models import Page
@@ -68,12 +70,14 @@ async def blog_index_view(request):
 
     # If page does not exist, show 404 error
     if not page_obj:
-        raise Http404("Page not found")
-
-    # Pass the page object to the template
-    context = {
-        'page_obj': page_obj,
-    }
+        context = {
+            'page_obj': None,
+        }
+    else:  
+        # Pass the page object to the template
+        context = {
+            'page_obj': page_obj,
+        }
 
     # Render the blog index page
     return await sync_to_async(render)(request, 'blog/blog_index_page.html', context)

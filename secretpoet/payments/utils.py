@@ -36,7 +36,7 @@ class ClientSync:
 class Payment:
     def __init__(self, url=None):
         self.url = url
-        self.client = ClientAsync(url=self.url or "http://full_service:9090/wallet/v2")
+        self.client = ClientAsync(url=self.url or os.getenv('FULL_SERVICE_URL', "http://full_service:9090/wallet/v2"))
 
     async def is_unlocked_for_user(self, unlock_key,post):
         mob_info = False
