@@ -15,3 +15,5 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('Successfully created superuser'))
         else:
             self.stdout.write(self.style.WARNING('Superuser already exists'))
+
+

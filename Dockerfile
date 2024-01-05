@@ -1,5 +1,5 @@
 # Use an official Python runtime based on Debian 10 "buster" as a parent image.
-FROM python:3.8.1-slim-buster
+FROM --platform=linux/amd64 python:3.11.0-slim-buster
 
 # Add user that will be used in the container.
 RUN useradd wagtail
@@ -25,13 +25,13 @@ RUN apt-get update --yes --quiet && apt-get install --yes --quiet --no-install-r
  && rm -rf /var/lib/apt/lists/*
 
 # Install the application server.
-RUN pip install "gunicorn==20.0.4"
-
-RUN pip install --upgrade pip setuptools
+RUN pip3 install "gunicorn==20.0.4"
+RUN pip3 install --upgrade pip
+RUN pip3 install --upgrade pip setuptools
 
 # Install the project requirements.
 COPY requirements.txt /
-RUN pip install -r /requirements.txt
+RUN pip3 install -r /requirements.txt
 
 # Use /app folder as a directory where the source code is stored.
 WORKDIR /app
@@ -44,6 +44,9 @@ RUN chown wagtail:wagtail /app
 # Copy the source code of the project into the container.
 COPY --chown=wagtail:wagtail . .
 
+# Copy the remote-up.sh script and set permissions
+COPY remote-up.sh /app/remote-up.sh
+RUN chmod +x /app/remote-up.sh
 # Use user "wagtail" to run the build commands below and the server itself.
 USER wagtail
 
@@ -59,4 +62,6 @@ RUN python manage.py collectstatic --noinput --clear
 #   PRACTICE. The database should be migrated manually or using the release
 #   phase facilities of your hosting platform. This is used only so the
 #   Wagtail instance can be started with a simple "docker run" command.
-CMD set -xe; python manage.py migrate --noinput; gunicorn secretpoet.wsgi:application
+CMD set -xe; \
+    /app/remote-up.sh; \
+    gunicorn secretpoet.wsgi:application

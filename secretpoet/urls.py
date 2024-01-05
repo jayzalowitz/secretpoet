@@ -7,13 +7,20 @@ from wagtail import urls as wagtail_urls
 from wagtail.documents import urls as wagtaildocs_urls
 
 from search import views as search_views
+from blog import views as blog_views
 
 urlpatterns = [
+    path('healthcheck/', blog_views.health_check, name='health_check'),
     path("django-admin/", admin.site.urls),
     path("admin/", include(wagtailadmin_urls)),
     path("documents/", include(wagtaildocs_urls)),
     path("search/", search_views.search, name="search"),
     path('blog/', include('blog.urls')),  # Include the blog app URLs
+    path('blog/post/<slug:post_slug>/', blog_views.blog_post_view, name='blog_post'),
+    path('blog/post/<int:post_id>/', blog_views.blog_post_view, name='blog_post_view'),
+    path('blog/post/<slug:post_slug>/', blog_views.unlock_blog_post, name='blog_post'),
+    path('', blog_views.blog_index_view, name='home'),
+    path('blog/', blog_views.blog_index_view, name='blog_index'),
 ]
 
 

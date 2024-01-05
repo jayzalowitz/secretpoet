@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>{{ page.title }}</h1>
+  <p>{{ page.body }}</p>
+
+  {% if is_unlocked_for_user %}
+    <div>Content of the blog post</div>
+  {% else %}
+    <p>This post requires a payment of {{ page.unlock_fee }} {{ page.coin_option }} to unlock.</p>
+    <a href="{% url 'unlock_blog_post' page.id %}">Unlock Post</a>
+  {% endif %}
+{% endblock %}
