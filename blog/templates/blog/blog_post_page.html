@@ -2,6 +2,9 @@
 
 {% block extra_css %}
     <style>
+        body {
+            font-family: 'Montserrat', sans-serif; /* Replace 'Montserrat' with your chosen font */
+        }
         .blog-post {
             max-width: 800px;
             margin: auto;
@@ -48,24 +51,26 @@
         .alert-warning {
             width:max-content;
         }
+        .alert-info {
+            width:max-content;
+        }
     </style>
 {% endblock %}
 
 {% block content %}
 <article class="blog-post container">
     <h1 class="mb-4">{{ page.title }}</h1>
-
-    {% if is_unlocked_for_user %}
+    {% if payment_required == False %}
+        <div class="content">
+            <p class="lead">{{ page.body|linebreaksbr }}</p>
+        </div>
+    {% elif is_unlocked_for_user == True %}
         <div class="content">
             <p class="lead">{{ page.body|linebreaksbr }}</p>
             <div class="alert alert-info" role="alert">
-                To visit this page in the future, save this link which contains your payment address: 
+                To visit this page in the future, save this link which contains your payment address:<br> 
                 <strong>{{ request.build_absolute_uri }}</strong>
             </div>
-        </div>
-    {% elif payment_required %}
-        <div class="content">
-            <p class="lead">{{ page.body|linebreaksbr }}</p>
         </div>
     {% else %}
         <div class="payment-required">
@@ -73,9 +78,24 @@
                 <p class="lead">This post requires a payment of {{ page.unlock_fee }} {{ page.coin_option }} to unlock.</p>
                 <a href="{% url 'unlock_blog_post' page.id %}" class="btn btn-primary">Unlock Post</a>
             {% elif unlock_key %}
+                <script>
+                    function checkUnlockStatus() {
+                        fetch('/blog/check-post/{{ page.id }}/?unlock_key={{ unlock_key }}')
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.is_unlocked) {
+                                    location.reload();
+                                }
+                            })
+                            .catch(error => console.error('Error:', error));
+                    }
+
+                    // Check every second
+                    setInterval(checkUnlockStatus, 5000);
+                </script>
                 <p class="lead">This post requires a payment of {{ page.unlock_fee }} {{ page.coin_option }} to unlock.</p>
                 <div class="alert alert-warning" role="alert">
-                    Please send this fee to this {{ page.coin_option }} public address: <strong>{{ unlock_key }}</strong>
+                    Please send this fee to this {{ page.coin_option }} public address: <br><strong>{{ unlock_key }}</strong>
                 </div>
             {% endif %}
         </div>

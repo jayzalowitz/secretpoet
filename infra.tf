@@ -202,8 +202,8 @@ resource "aws_ecs_task_definition" "full_service" {
   family                   = "full-service"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "1024"
-  memory                   = "2048"
+  cpu                      = "2048"
+  memory                   = "13312"
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
   volume {
     name = "full-service-data"
@@ -361,7 +361,7 @@ resource "aws_ecs_task_definition" "web" {
 
   container_definitions = jsonencode([{
     name  = "web",
-    image = "jayzalowitz/secretpoet.1.1",  # Replace with your Docker image
+    image = "jayzalowitz/secretpoet.1.6",  # Replace with your Docker image
     # command = ["/app/remote-up.sh"],  # Specify the path to your script
     portMappings = [{
       containerPort = 8000,

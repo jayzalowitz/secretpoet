@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="/static/css/secretpoet.css">
 </head>
 <body>
@@ -41,7 +42,7 @@
         <div class="card mb-4">
             <div class="card-body">
                 <h5 class="card-title">{{ post.title }}</h5>
-                {% if not post.payment_required %}
+                {% if post.payment_required == False %}
                 <p class="card-text">{{ post.body|truncatewords:30 }}</p>
                 {% endif %}
                 <a href="{% url 'blog_post_view' post_id=post.id %}" class="btn btn-primary">Read more</a>
