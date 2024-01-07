@@ -21,6 +21,7 @@ urlpatterns = [
     path('blog/post/<slug:post_slug>/', blog_views.unlock_blog_post, name='blog_post'),
     path('', blog_views.blog_index_view, name='home'),
     path('blog/', blog_views.blog_index_view, name='blog_index'),
+    path('blog/check-post/<int:post_id>/', blog_views.blog_post_check_view, name='blog_post_check'),
 ]
 
 

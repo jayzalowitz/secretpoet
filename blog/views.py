@@ -9,12 +9,12 @@ from django.core.paginator import Paginator
 from django.http import Http404
 import logging
 import json
+from django.http import JsonResponse
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 def health_check(request):
     import os
-    from django.http import JsonResponse
     from django.db import connections, OperationalError
     from django.contrib.auth import get_user_model
     # Environment variable checks
@@ -61,7 +61,7 @@ def health_check(request):
 
 async def blog_index_view(request):
     # Get all blog posts, you might want to order them as well
-    blog_posts = await sync_to_async(list)(BlogPost.objects.all().order_by('-last_published_at'))
+    blog_posts = await sync_to_async(list)(BlogPost.objects.live().order_by('-last_published_at'))
 
     # Implement pagination
     paginator = Paginator(blog_posts, 10)  # Show 10 posts per page
@@ -83,6 +83,29 @@ async def blog_index_view(request):
     return await sync_to_async(render)(request, 'blog/blog_index_page.html', context)
 
 
+async def blog_post_check_view(request, post_id=None, post_slug=None):
+    if post_id:
+        post = await sync_to_async(get_object_or_404)(BlogPost, pk=post_id)
+    elif post_slug:
+        post = await sync_to_async(get_object_or_404)(BlogPost, slug=post_slug)
+        # Handle the case where neither is provided
+        # Redirect to a default page or show an error
+    else:
+        # Handle the case where neither is provided
+        return render(request, 'errors/404.html', {}, status=404)
+
+    unlock_key = request.GET.get('unlock_key', '')
+    if not unlock_key:
+        is_unlocked = False
+    else:
+        payment = Payment()
+        is_unlocked = await payment.is_unlocked_for_user(unlock_key,post)
+        logging.error(is_unlocked)
+        
+    return JsonResponse({
+        "is_unlocked": is_unlocked
+    }, status=200)
+
 async def blog_post_view(request, post_id=None, post_slug=None):
     if post_id:
         post = await sync_to_async(get_object_or_404)(BlogPost, pk=post_id)
@@ -100,17 +123,21 @@ async def blog_post_view(request, post_id=None, post_slug=None):
     else:
         payment = Payment()
         is_unlocked = await payment.is_unlocked_for_user(unlock_key,post)
+        logging.error(is_unlocked)
         
-    if not unlock_key:   
+    if not unlock_key:  
         context = {
             'page': post,
+            'payment_required': post.payment_required,
             'is_unlocked_for_user': is_unlocked
         }
+        logging.error(context)
     else:
         logging.error(is_unlocked)
          
         context = {
             'page': post,
+            'payment_required': post.payment_required,
             'is_unlocked_for_user': is_unlocked,
             'unlock_key': unlock_key
         }

@@ -11,7 +11,9 @@ ALLOWED_HOSTS = ["*"]
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-
+# Removing debug for the purposes of quickly shipping an image
+# DEBUG = False
+# Needs work
 try:
     from .local import *
 except ImportError:
