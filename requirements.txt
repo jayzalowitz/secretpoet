@@ -4,3 +4,4 @@ mobilecoin==2.3.1
 ipdb
 dj-database-url
 psycopg2
+whitenoise
