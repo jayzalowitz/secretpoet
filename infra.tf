@@ -361,7 +361,7 @@ resource "aws_ecs_task_definition" "web" {
 
   container_definitions = jsonencode([{
     name  = "web",
-    image = "jayzalowitz/secretpoet.1.6",  # Replace with your Docker image
+    image = "jayzalowitz/secretpoet.1.8",  # Replace with your Docker image
     # command = ["/app/remote-up.sh"],  # Specify the path to your script
     portMappings = [{
       containerPort = 8000,

@@ -18,7 +18,7 @@ class BlogPost(Page):
         null=True
     )
     payment_required = models.BooleanField(default=True)
-    unlock_fee = models.DecimalField(max_digits=13, decimal_places=10)
+    unlock_fee = models.DecimalField(max_digits=13, decimal_places=10, default=1.0)
     coin_choice = (
         ('mobilecoin','mobilecoin'),
         ('eusd', 'eusd (inactive)'),
